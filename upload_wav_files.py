@@ -1,19 +1,12 @@
-000import sys
+import sys
 import os
 import subprocess
 from dotenv import load_dotenv
 from pathlib import Path
-analysis_url = "https://api.dolby.com/media/analyze/speech"
 from functions import get_access_token, analyze_speech, check_processing_status, upload_file_to_s3, create_bucket_if_not_exists
 
 # Load environment variables from .env file
 load_dotenv()
-
-print("APP_KEY:", os.getenv('APP_KEY'))
-print("APP_SECRET:", os.getenv('APP_SECRET'))
-print("AWS_ACCESS_KEY_ID:", os.getenv('AWS_ACCESS_KEY_ID'))
-print("AWS_SECRET_ACCESS_KEY:", os.getenv('AWS_SECRET_ACCESS_KEY'))
-
 
 # Get invitation_number from arguments if provided, else prompt the user
 invitation_number = sys.argv[1] if len(sys.argv) > 1 else input("Enter invitation number: ")
@@ -47,6 +40,7 @@ for file_path in Path(folder_path).glob('*.wav'):
 
 # Wait for all analysis jobs to complete
 access_token = get_access_token()  # Add this line
+analysis_url = "https://api.dolby.com/media/analyze"  # Add this line
 for job_id in jobs:
     check_processing_status(access_token, job_id, analysis_url)  # Modify this line
 
