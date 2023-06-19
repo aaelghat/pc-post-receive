@@ -54,7 +54,9 @@ def analyze_speech(access_token, S3_BUCKET_NAME, invitation_number, file_name):
     else:
         print(f'Error starting analysis job for {input_url}. Error Code: {response.status_code}')
         print(f'Error message: {response.text}')
+        print(f'Full response body: {response.json()}')  # Print the entire response body
         return None
+
 
 def check_processing_status(access_token, job_id, url):
     headers = {'Authorization': 'Bearer ' + access_token, 'Content-Type': 'application/json'}
@@ -64,6 +66,7 @@ def check_processing_status(access_token, job_id, url):
         response = requests.get(status_url, headers=headers)
         print("Response code:", response.status_code)  # Print the response code
         print("Response text:", response.text)  # Print the response text
+        print(f"Full response: {response.json()}")
         if response.status_code == 200:
             status = response.json().get("status")
             if status == "Succeeded":
