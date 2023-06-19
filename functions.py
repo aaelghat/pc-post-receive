@@ -43,8 +43,20 @@ def analyze_speech(access_token, S3_BUCKET_NAME, invitation_number, file_name):
     input_url = f"s3://{S3_BUCKET_NAME}/{invitation_number}/{file_name}.wav"
     headers = {'Authorization': 'Bearer ' + access_token, 'Content-Type': 'application/json'}
     payload = {
-        "input": input_url,
-        "output": input_url.replace(".wav", "_analysis.json")
+        "input": {
+            "url": input_url,
+            "auth": {
+                "key": S3_ACCESS_KEY,
+                "secret": S3_SECRET_KEY
+            }
+        },
+        "output": {
+            "url": input_url.replace(".wav", "_analysis.json"),
+            "auth": {
+                "key": S3_ACCESS_KEY,
+                "secret": S3_SECRET_KEY
+            }
+        }
     }
     response = requests.post(analysis_url, headers=headers, json=payload)
     if response.status_code == 200:
@@ -54,8 +66,8 @@ def analyze_speech(access_token, S3_BUCKET_NAME, invitation_number, file_name):
     else:
         print(f'Error starting analysis job for {input_url}. Error Code: {response.status_code}')
         print(f'Error message: {response.text}')
-        print(f'Full response body: {response.json()}')  # Print the entire response body
         return None
+
 
 
 def check_processing_status(access_token, job_id, url):
