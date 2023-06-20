@@ -150,14 +150,27 @@ def create_bucket_if_not_exists(bucket_name):
 def get_analysis_results(invitation_number, file_name):
     # Define the URL for getting the analysis results
     url = f"https://api.dolby.com/media/analyze?job_id={invitation_number}_{file_name}"
-    # Send a GET request to the URL
-    response = requests.get(url, headers={'Authorization': 'Bearer ' + get_access_token()})
-    # If the request was successful, return the results
-    if response.status_code == 200:
-        return response.json()
-    else:
-        print(f"Failed to get analysis results for {file_name}. Response code: {response.status_code}")
-        return None
+    # Initialize a counter for the number of retries
+    retries = 0
+    # Maximum number of retries
+    max_retries = 5
+    # Time to wait between retries (in seconds)
+    wait_time = 10
+    while retries < max_retries:
+        # Send a GET request to the URL
+        response = requests.get(url, headers={'Authorization': 'Bearer ' + get_access_token()})
+        # If the request was successful, return the results
+        if response.status_code == 200:
+            return response.json()
+        else:
+            print(f"Failed to get analysis results for {file_name}. Response code: {response.status_code}. Retrying in {wait_time} seconds...")
+            # Wait for a while before retrying
+            time.sleep(wait_time)
+            # Increment the retry counter
+            retries += 1
+    print(f"Failed to get analysis results for {file_name} after {max_retries} retries.")
+    return None
+
 
 
 def transcode_file(access_token, S3_BUCKET_NAME, invitation_number, file_name, start_time, duration):
